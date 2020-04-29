@@ -21,7 +21,8 @@ Universe = new function () {
 	var RADIUS = 70;
 	var FPS = 20;
 	var INITIAL_SATELLITES = 20;
-	var INITIAL_PLANETS = 3;
+  var INITIAL_PLANETS = 3;
+  var PLANET_GRAVITATION = 20;
 
 	var mouseX = SCREEN_WIDTH / 2;
 	var mouseY = SCREEN_HEIGHT / 2;
@@ -258,7 +259,7 @@ Universe = new function () {
 					var d1 = distance(p, s);
 					var d2 = distance(s.planet, s);
 
-					if (d1 < d2)
+					if (d1 < d2 && d1 < PLANET_GRAVITATION)
 						s.planet = p;
 				}
 			}
