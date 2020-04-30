@@ -106,6 +106,15 @@ Universe = new (function () {
     }
   }
 
+  // 重置卫星（重生？）
+  function resetSatellite(s, p) {
+    s.left = Math.random() * SCREEN_WIDTH
+    s.top = Math.random() * SCREEN_HEIGHT
+    s.offset = { x: 0, y: 0 }
+    s.mov = { x: s.left, y: s.top }
+    s.planet = p
+  }
+
   // 星球初始化
   function initPlanets() {
     var minLength = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) - 100
@@ -229,6 +238,7 @@ Universe = new (function () {
   // === UTILS ===
   // =============
 
+  // 获取两个星球的距离
   function distance(c1, c2) {
     var x1 = c1.left
     var x2 = c2.left
@@ -238,6 +248,7 @@ Universe = new (function () {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
   }
 
+  // 计算卫星数量
   function numberOfSatellites(planet) {
     var count = 0
 
@@ -247,6 +258,7 @@ Universe = new (function () {
     return count
   }
 
+  // 设置行星大小
   function setSize() {
     for (var i = 0; i < planets.length; i++) {
       var p = planets[i]
@@ -255,6 +267,14 @@ Universe = new (function () {
       p.radius += (neighbors - p.radius) * 0.025
       p.radius = Math.max(p.radius, 2)
     }
+  }
+
+  // 碰撞检测
+  function checkCollision(c1, c2) {
+    var x1 = c1.left
+    var x2 = c2.left
+    var y1 = c1.top
+    var y2 = c2.top
   }
 
   // =================
@@ -271,22 +291,33 @@ Universe = new (function () {
     // if (target == "canvas")
     // 	createPlanet(mouseX, mouseY);
 
+    // 确定行星位置
+    for (var i = 0; i < planets.length; i++) {
+      var p = planets[i]
+
+      p.pos += Math.PI * p.speed / 20000
+      p.left = SCREEN_WIDTH / 2 - Math.cos(p.pos) * p.centerRadius
+      p.top = SCREEN_HEIGHT / 2 - Math.sin(p.pos) * p.centerRadius
+
+    }
+
+
     for (var i = 0; i < satellites.length; i++) {
       var s = satellites[i]
 
-      // Rotation
+      // 旋转？
       s.offset.x += s.speed
       s.offset.y += s.speed
 
-      // Movement Effect
+      // 移动位置
       s.mov.x += (s.planet.left - s.mov.x) * s.speed
       s.mov.y += (s.planet.top - s.mov.y) * s.speed
 
-      // Change position
+      // 位置调整
       s.left = s.mov.x + Math.cos(i + s.offset.x) * s.orbit
       s.top = s.mov.y + Math.sin(i + s.offset.y) * s.orbit
 
-      // Check "attraction"
+      // 引力检测及碰撞检测
       for (var j = 0; j < planets.length; j++) {
         var p = planets[j]
 
@@ -294,9 +325,18 @@ Universe = new (function () {
           var d1 = distance(p, s)
           var d2 = distance(s.planet, s)
 
-          if (d1 < d2 && d1 < PLANET_GRAVITATION) s.planet = p
+          if (d1 < d2 && d1 < PLANET_GRAVITATION) {
+            // 引力交换
+            s.planet = p
+          } else if (d1 <= p.radius + s.radius) {
+            // 若发生碰撞 则卫星回到中心位置并归属于撞击到的行星
+            resetSatellite(s, p)
+          } else if (d2 <= s.planet.radius + s.radius) {
+            resetSatellite(s, s.planet)
+          }
         }
       }
+
     }
 
     for (var i = 0; i < nebulas.length; i++) {
@@ -309,17 +349,7 @@ Universe = new (function () {
       }
     }
 
-    setSize()
-
-    // 确定行星位置
-    for (var i = 0; i < planets.length; i++) {
-      var p = planets[i]
-
-      p.pos += Math.PI * p.speed / 20000
-      p.left = SCREEN_WIDTH / 2 - Math.cos(p.pos) * p.centerRadius
-      p.top = SCREEN_HEIGHT / 2 - Math.sin(p.pos) * p.centerRadius
-
-    }
+    // setSize()
 
     canvas.renderAll()
   }
