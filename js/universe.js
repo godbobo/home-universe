@@ -108,7 +108,7 @@ Universe = new (function () {
 
   // 星球初始化
   function initPlanets() {
-    var minLength = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT)
+    var minLength = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) - 100
     var separatorLength = minLength / 2 / INITIAL_PLANETS
     for (var i = 0; i < INITIAL_PLANETS; i++) {
       var left = Math.random() * separatorLength + i * separatorLength
@@ -121,7 +121,7 @@ Universe = new (function () {
         // 移动距离
         pos: 0,
         // 移动速度
-        speed: 5.43 + i * 5,
+        speed: 6.43 + i * 5,
         // 距离中心点半径
         centerRadius: Math.sqrt(Math.pow(left, 2) + Math.pow(top, 2))
       })
