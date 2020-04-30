@@ -108,18 +108,29 @@ Universe = new (function () {
 
   // 星球初始化
   function initPlanets() {
+    var minLength = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT)
+    var separatorLength = minLength / 2 / INITIAL_PLANETS
     for (var i = 0; i < INITIAL_PLANETS; i++) {
+      var left = Math.random() * separatorLength + i * separatorLength
+      var top = Math.random() * separatorLength + i * separatorLength
       var p = new fabric.Circle({
         fill: planetShadow.color,
         radius: 10,
-        left: Math.random() * SCREEN_WIDTH,
-        top: Math.random() * SCREEN_HEIGHT,
+        left: left,
+        top: top,
+        // 移动距离
+        pos: 0,
+        // 移动速度
+        speed: 5.43 + i * 5,
+        // 距离中心点半径
+        centerRadius: Math.sqrt(Math.pow(left, 2) + Math.pow(top, 2))
       })
       p.setShadow(planetShadow)
 
       canvas.add(p)
       planets.push(p)
     }
+    console.log(planets)
   }
 
   function initNebulas() {
@@ -128,7 +139,7 @@ Universe = new (function () {
       var p = new fabric.Circle({
         fill: nebulaShadow.color,
         radius: Math.random() * 1.5,
-        radiusRange: {min: 0.5, max: 1.5},
+        radiusRange: {min: 0.5, max: 1 + Math.random() * 0.6},
         scaleSpeed: Math.random() * 0.04,
         left: Math.random() * SCREEN_WIDTH,
         top: Math.random() * SCREEN_HEIGHT,
@@ -299,6 +310,16 @@ Universe = new (function () {
     }
 
     setSize()
+
+    // 确定行星位置
+    for (var i = 0; i < planets.length; i++) {
+      var p = planets[i]
+
+      p.pos += Math.PI * p.speed / 20000
+      p.left = SCREEN_WIDTH / 2 - Math.cos(p.pos) * p.centerRadius
+      p.top = SCREEN_HEIGHT / 2 - Math.sin(p.pos) * p.centerRadius
+
+    }
 
     canvas.renderAll()
   }
