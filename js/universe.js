@@ -33,6 +33,8 @@ Universe = new (function () {
   var satellites = []
   var nebulas = []
 
+  var cursorStyle = 'auto'
+
   // Shadows
   var planetShadow = {
     color: 'rgba(100, 120, 230, 1)',
@@ -148,7 +150,7 @@ Universe = new (function () {
       var p = new fabric.Circle({
         fill: nebulaShadow.color,
         radius: Math.random() * 1.5,
-        radiusRange: {min: 0.5, max: 1 + Math.random() * 0.6},
+        radiusRange: { min: 0.5, max: 1 + Math.random() * 0.6 },
         scaleSpeed: Math.random() * 0.04,
         left: Math.random() * SCREEN_WIDTH,
         top: Math.random() * SCREEN_HEIGHT,
@@ -202,6 +204,7 @@ Universe = new (function () {
   function documentMouseMoveHandler(event) {
     mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5
     mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5
+    document.getElementById('universe').style.cursor = cursorStyle
   }
 
   function documentMouseDownHandler(event) {
@@ -292,13 +295,23 @@ Universe = new (function () {
     // 	createPlanet(mouseX, mouseY);
 
     // 确定行星位置
+    var cursorOnPlanet = false
     for (var i = 0; i < planets.length; i++) {
       var p = planets[i]
-
-      p.pos += Math.PI * p.speed / 20000
-      p.left = SCREEN_WIDTH / 2 - Math.cos(p.pos) * p.centerRadius
-      p.top = SCREEN_HEIGHT / 2 - Math.sin(p.pos) * p.centerRadius
-
+      var distanceInPM = Math.sqrt(Math.pow(Math.abs(p.left - mouseX), 2) + Math.pow(Math.abs(p.top - mouseY), 2))
+      if (distanceInPM > p.radius + 20) {
+        // 当鼠标不在行星上面时才能移动
+        p.pos += Math.PI * p.speed / 20000
+        p.left = SCREEN_WIDTH / 2 - Math.cos(p.pos) * p.centerRadius
+        p.top = SCREEN_HEIGHT / 2 - Math.sin(p.pos) * p.centerRadius
+      } else {
+        cursorOnPlanet = true
+      }
+    }
+    if (cursorOnPlanet) {
+      cursorStyle = 'pointer'
+    } else {
+      cursorStyle = 'auto'
     }
 
 
